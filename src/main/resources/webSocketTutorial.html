@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script language="JavaScript" type="text/javascript">
+    var socket = null;
+
+    function connClose() {
+        if(socket.readyState === WebSocket.OPEN){
+            socket.close();
+        }
+    }
+
+    function appendChat(content) {
+        console.log(content);
+        var chatContent = $('#chatFrame').text();
+        if (chatContent != '') chatContent = chatContent.concat('\n')
+        $('#chatFrame').text(chatContent.concat(content));
+    }
+
+    $(document).ready(function () {
+
+        socket = new WebSocket('ws://echo.websocket.org');
+
+        socket.onopen = function (ev) {
+            appendChat('Connection established!');
+            socket.send("can you hear?");
+        };
+
+        socket.onmessage = function (ev) {
+            if (typeof ev.data === 'string') {
+                appendChat(ev.data);
+            } else {
+                console.error('not string data : ' + typeof (ev.data));
+            }
+        };
+
+        socket.onclose = function (ev) {
+            if(socket.readyState == WebSocket.CLOSED){
+                appendChat('Connection closed!');
+            }
+        };
+
+        socket.onerror = function (ev) {
+            console.log("Socket error!");
+            $('#chatFrame').text('Socket error!');
+        };
+
+    });
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+    <table>
+        <tr>
+            <td>
+                <textarea id="chatFrame" rows="10" cols="50"></textarea>
+                <textarea rows="10" cols="10"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td><input type="text" size="100"></td>
+        </tr>
+        <tr>
+            <td>
+                <button>Send</button>
+                <button onclick="connClose()">Close</button>
+            </td>
+        </tr>
+
+    </table>
+</head>
+<body>
+
+</body>
+</html>
